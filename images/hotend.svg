@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="0" x2="568" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#1A2230"/><stop offset="1" stop-color="#10151F"/></linearGradient>
+    <linearGradient id="brass" x1="224" y1="112" x2="354" y2="252" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE28A"/><stop offset=".5" stop-color="#D8992E"/><stop offset="1" stop-color="#A76520"/></linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h600v360H0z"/>
+  <path d="M0 290h600M0 320h600M80 0v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360" stroke="#FF5A1F" stroke-opacity=".055"/>
+  <circle cx="294" cy="181" r="110" fill="#FF821E" opacity=".1"/>
+  <path d="M260 62h69v58h-69z" fill="#303C4B" stroke="#8B98A8" stroke-width="5"/>
+  <path d="M267 74h55m-55 12h55m-55 12h55" stroke="#526074" stroke-width="4"/>
+  <path d="M279 120h32v43h-32z" fill="#D6DCE2" stroke="#8E9BA9" stroke-width="4"/>
+  <path d="M243 155h104v59H243z" fill="#626F7F" stroke="#B3BCC5" stroke-width="5"/>
+  <path d="M256 168h78v34h-78z" fill="#455363"/>
+  <circle cx="232" cy="183" r="15" fill="#FF5A1F" stroke="#FFB45D" stroke-width="5"/>
+  <circle cx="357" cy="183" r="15" fill="#00C9DE" stroke="#8BF2FF" stroke-width="5"/>
+  <path d="M263 214h64l-12 42h-40l-12-42Z" fill="url(#brass)" stroke="#FFD275" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M275 257h40l-15 29h-10l-15-29Z" fill="#A86E2C" stroke="#FFD275" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M293 286v27" stroke="#FF661E" stroke-width="5" stroke-linecap="round"/>
+  <path d="M365 106c54 9 64 34 48 58-9 14-21 17-44 17" stroke="#00E5FF" stroke-width="5" stroke-linecap="round"/>
+  <path d="m407 80 6 13 14 2-10 9 2 14-12-7-12 7 3-14-11-9 14-2 6-13Z" fill="#FF5A1F"/>
+  <text x="52" y="319" fill="#8593A5" font-family="monospace" font-size="12" letter-spacing="3">HOTEND / BOQUILLAS</text>
+</svg>

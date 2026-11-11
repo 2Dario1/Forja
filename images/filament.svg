@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="0" x2="568" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#1A2230"/><stop offset="1" stop-color="#10151F"/></linearGradient>
+    <linearGradient id="spool" x1="183" y1="68" x2="396" y2="294" gradientUnits="userSpaceOnUse"><stop stop-color="#FF8A32"/><stop offset="1" stop-color="#E33E15"/></linearGradient>
+    <linearGradient id="coil" x1="213" y1="98" x2="372" y2="268" gradientUnits="userSpaceOnUse"><stop stop-color="#FFBA68"/><stop offset="1" stop-color="#FF641F"/></linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h600v360H0z"/>
+  <path d="M0 290h600M0 320h600M80 0v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360" stroke="#FF5A1F" stroke-opacity=".055"/>
+  <circle cx="300" cy="180" r="132" fill="#FF591B" opacity=".1"/>
+  <circle cx="297" cy="176" r="108" fill="url(#spool)" stroke="#FFC080" stroke-opacity=".45" stroke-width="5"/>
+  <circle cx="297" cy="176" r="78" fill="#151B25" stroke="#B83719" stroke-width="9"/>
+  <circle cx="297" cy="176" r="56" fill="url(#coil)"/>
+  <circle cx="297" cy="176" r="45" stroke="#FFD29B" stroke-opacity=".72" stroke-width="7"/>
+  <circle cx="297" cy="176" r="32" stroke="#FF9D4A" stroke-width="7"/>
+  <circle cx="297" cy="176" r="18" fill="#171D27" stroke="#FFD29B" stroke-width="5"/>
+  <path d="M297 68v30m0 156v30m-107-108h30m156 0h30m-185-76 21 21m110 110 21 21m0-152-21 21m-110 110-21 21" stroke="#FFD6A4" stroke-width="8" stroke-linecap="round"/>
+  <path d="M402 119c44 0 53 24 48 51-5 24-25 34-56 34h-24" stroke="#00DFF1" stroke-width="6" stroke-linecap="round"/>
+  <path d="M405 204h-45" stroke="#00DFF1" stroke-width="5" stroke-dasharray="5 8" stroke-linecap="round"/>
+  <rect x="416" y="86" width="73" height="28" rx="14" fill="#171E29" stroke="#2B3545"/>
+  <text x="431" y="105" fill="#00E5FF" font-family="monospace" font-size="11" font-weight="700">1.75 MM</text>
+  <text x="52" y="319" fill="#8593A5" font-family="monospace" font-size="12" letter-spacing="3">PLA+ / PETG / TPU</text>
+</svg>

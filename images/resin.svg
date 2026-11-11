@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="0" x2="568" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#1A2230"/><stop offset="1" stop-color="#10151F"/></linearGradient>
+    <linearGradient id="bottle" x1="188" y1="90" x2="342" y2="284" gradientUnits="userSpaceOnUse"><stop stop-color="#54627C"/><stop offset="1" stop-color="#283548"/></linearGradient>
+    <linearGradient id="liquid" x1="202" y1="199" x2="328" y2="272" gradientUnits="userSpaceOnUse"><stop stop-color="#B45CF6"/><stop offset="1" stop-color="#5D4CDE"/></linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h600v360H0z"/>
+  <path d="M0 290h600M0 320h600M80 0v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360" stroke="#FF5A1F" stroke-opacity=".055"/>
+  <circle cx="300" cy="178" r="115" fill="#9A51F5" opacity=".12"/>
+  <path d="M226 80h80v39l37 28v132c0 12-10 22-22 22H207c-12 0-22-10-22-22V147l41-28V80Z" fill="url(#bottle)" stroke="#8595AB" stroke-width="5"/>
+  <path d="M226 79h80v27h-80z" fill="#1C2635" stroke="#9AA8BA" stroke-width="4"/>
+  <path d="M245 60h42v21h-42z" fill="#D1D8E0"/><path d="M241 51h50v12h-50z" fill="#738198"/>
+  <path d="M191 207h141v72c0 9-7 16-16 16h-109c-9 0-16-7-16-16v-72Z" fill="url(#liquid)"/>
+  <path d="M199 218c17-8 26 7 43 0 18-8 26 7 43 0 15-7 28 5 39-1" stroke="#E8C9FF" stroke-opacity=".7" stroke-width="4"/>
+  <path d="M223 166h75v27h-75z" rx="5" fill="#141B26" stroke="#738198" stroke-width="3"/>
+  <text x="235" y="184" fill="#D7B5FF" font-family="monospace" font-size="12" font-weight="700">405nm UV</text>
+  <path d="m413 94 6 13 14 2-10 9 2 14-12-7-12 7 3-14-11-9 14-2 6-13Z" fill="#00DFF1"/>
+  <path d="M390 186c0 29-19 48-40 48" stroke="#A968F3" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="382" cy="179" r="7" fill="#C790FA"/><circle cx="367" cy="218" r="5" fill="#00E5FF"/>
+  <text x="52" y="319" fill="#8593A5" font-family="monospace" font-size="12" letter-spacing="3">RESINA FOTOPOLÍMERO</text>
+</svg>

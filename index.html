@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORJA | Impresión 3D El Salvador - Construye lo que imaginas</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js for 3D Viewport in Modal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Google Fonts Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/chat.css">
+    <script src="/chat.js" defer></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#111923',
+                            darker: '#0b1118',
+                            card: '#192330',
+                            cardHover: '#202e3d',
+                            orange: '#ff5500',
+                            orangeHover: '#e04b00',
+                            cyan: '#00e5ff',
+                            cyanHover: '#00b8cc',
+                            text: '#f3f4f6',
+                            muted: '#94a3b8',
+                            border: '#2b394b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    boxShadow: {
+                        'glow-orange': '0 0 25px -4px rgba(255, 85, 0, 0.45)',
+                        'glow-cyan': '0 0 25px -4px rgba(0, 229, 255, 0.45)',
+                        'glow-subtle': '0 8px 32px 0 rgba(0, 0, 0, 0.6)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #111923;
+            background-image:
+                radial-gradient(ellipse at 12% 18%, rgba(0, 229, 255, 0.045), transparent 38%),
+                radial-gradient(ellipse at 88% 62%, rgba(255, 85, 0, 0.035), transparent 42%);
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111923;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2b394b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff5500;
+        }
+
+        /* Industrial Grid Pattern */
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(255, 85, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 36px 36px;
+        }
+
+        .text-gradient-orange {
+            background: linear-gradient(135deg, #ff5500 0%, #ff8800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-cyan {
+            background: linear-gradient(135deg, #00e5ff 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-panel {
+            background: rgba(20, 25, 35, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .glass-panel-orange {
+            background: rgba(20, 25, 35, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 85, 0, 0.35);
+        }
+
+        /* Product Card Animation */
+        .product-card {
+            transition:
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 85, 0, 0.5);
+            box-shadow: 0 12px 30px -10px rgba(255, 85, 0, 0.25);
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.95); }
+        }
+        .pulse-indicator {
+            animation: pulse-slow 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        body.cart-drawer-open {
+            overflow: hidden;
+        }
+
+        body.catalog-drawer-open {
+            overflow: hidden;
+        }
+
+        body.cart-drawer-open #cartPanel {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        body.cart-drawer-open #cartItemsContainer {
+            flex: none;
+            overflow: visible;
+        }
+
+        body.cart-drawer-open #cartEmptyState {
+            flex: 1 0 auto;
+            min-height: 12rem;
+        }
+
+        :focus-visible {
+            outline: 2px solid #00e5ff;
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-brand-dark text-brand-text antialiased selection:bg-brand-orange selection:text-white">
+
+    <!-- Header / Navbar Navigation -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-brand-border/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex min-h-20 flex-wrap items-center justify-between gap-y-3 py-3 md:h-20 md:flex-nowrap md:gap-y-0 md:py-0">
+                
+                <button type="button" class="group flex items-center" onclick="resetFilters()" aria-label="FORJA, ir al inicio">
+                    <span class="flex h-[74px] w-[104px] items-center justify-center overflow-hidden rounded-xl border border-white/60 bg-slate-100 p-1 shadow-md transition-transform group-hover:scale-105">
+                        <img src="/images/forja-logo.png" alt="FORJA — Construye lo que imaginas" class="h-full w-full object-contain">
+                    </span>
+                </button>
+
+                <!-- Header Live Search Input -->
+                <div class="order-3 flex w-full max-w-none md:order-none md:w-auto md:flex-1 md:max-w-md md:mx-8">
+                    <div class="relative w-full">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted text-sm"></i>
+                        <input type="text" id="headerSearchInput" oninput="handleSearch(this.value)" placeholder="Buscar Bambu Lab, PLA Pro, Resina UV, Boquillas..." aria-label="Buscar productos" class="w-full bg-brand-darker/90 border border-brand-border rounded-xl pl-10 pr-10 py-2 text-sm text-brand-text placeholder-brand-muted focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange transition-all font-sans">
+                        <button type="button" id="clearHeaderSearch" onclick="clearSearch()" aria-label="Limpiar búsqueda" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-white">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation Actions -->
+                <div class="ml-auto flex items-center space-x-2 sm:space-x-3">
+                    <a href="#aboutSection" class="hidden items-center gap-2 rounded-xl border border-brand-border bg-brand-border/40 px-3.5 py-2 text-sm font-semibold text-brand-muted transition-colors hover:border-brand-cyan hover:text-brand-cyan md:flex">
+                        <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
+                        <span>Quiénes somos</span>
+                    </a>
+
+                    <button id="catalogMenuButton" type="button" onclick="openCatalogDrawer()" aria-label="Abrir catálogo" aria-haspopup="dialog" aria-expanded="false" aria-controls="catalogDrawer" class="flex items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-border/40 px-3.5 py-2 text-sm font-semibold text-brand-text transition-colors hover:border-brand-orange hover:text-brand-orange">
+                        <i class="fa-solid fa-bars text-base" aria-hidden="true"></i>
+                        <span class="hidden sm:inline">Catálogo</span>
+                    </button>
+
+                    <button onclick="toggleFilamentCalc()" class="hidden sm:flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-brand-border/40 hover:bg-brand-border border border-brand-border text-sm font-semibold transition-all text-brand-cyan hover:text-white">
+                        <i class="fa-solid fa-calculator text-xs"></i>
+                        <span>Calculadora 3D</span>
+                    </button>
+
+                    <button onclick="openCartDrawer()" class="relative flex items-center space-x-2.5 px-4 py-2 rounded-xl bg-brand-orange hover:bg-brand-orangeHover text-white font-bold text-sm shadow-glow-orange transition-all active:scale-95">
+                        <i class="fa-solid fa-boxes-packing text-base"></i>
+                        <span class="hidden sm:inline">Mi Proyecto (BOM)</span>
+                        <span id="cartCountBadge" class="ml-1 px-2 py-0.5 text-xs bg-white text-brand-dark rounded-full font-bold font-mono">0</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <section id="aboutSection" aria-labelledby="aboutTitle" class="border-b border-brand-border/70 bg-brand-card/30 py-14 sm:py-18">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid items-start gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+                <div>
+                    <p class="mb-3 font-mono text-xs font-bold uppercase tracking-[0.18em] text-brand-orange">Quiénes somos</p>
+                    <h2 id="aboutTitle" class="mb-5 text-3xl font-black leading-tight text-white sm:text-4xl">
+                        Impresión 3D en El Salvador
+                    </h2>
+                    <p class="mb-4 text-base leading-relaxed text-brand-muted">
+                        FORJA 3D es una tienda salvadoreña especializada en impresión 3D y fabricación aditiva. Reunimos equipos e insumos para impresión FDM y de resina SLA, además de una herramienta para estimar la fabricación de piezas personalizadas.
+                    </p>
+                    <p class="text-sm leading-relaxed text-brand-muted">
+                        Atendemos desde Sonsonate y ofrecemos opciones de retiro en tienda y envío. Queremos que encuentres en un mismo lugar lo necesario para explorar, crear y llevar adelante tu próximo proyecto.
+                    </p>
+                    <div class="mt-7 flex flex-wrap gap-3">
+                        <button type="button" onclick="openCatalogDrawer()" class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-orange px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-orangeHover">
+                            <i class="fa-solid fa-cubes" aria-hidden="true"></i>
+                            Explorar catálogo
+                        </button>
+                        <button type="button" onclick="openFilamentCalc()" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-brand-border bg-brand-dark px-5 py-2.5 text-sm font-bold text-brand-text transition-colors hover:border-brand-cyan hover:text-brand-cyan">
+                            <i class="fa-solid fa-calculator" aria-hidden="true"></i>
+                            Cotizar una pieza
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <article class="rounded-2xl border border-brand-border bg-brand-dark/80 p-5">
+                        <span class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-brand-orange/30 bg-brand-orange/10 text-brand-orange">
+                            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                        </span>
+                        <h3 class="mb-2 font-bold text-white">Equipos e insumos</h3>
+                        <p class="text-sm leading-relaxed text-brand-muted">Impresoras, filamentos, resinas y herramientas para distintos procesos de fabricación aditiva.</p>
+                    </article>
+                    <article class="rounded-2xl border border-brand-border bg-brand-dark/80 p-5">
+                        <span class="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan">
+                            <i class="fa-solid fa-cube" aria-hidden="true"></i>
+                        </span>
+                        <h3 class="mb-2 font-bold text-white">Impresión personalizada</h3>
+                        <p class="text-sm leading-relaxed text-brand-muted">Calcula un estimado inicial para piezas impresas y consulta con FORJA los detalles de tu proyecto.</p>
+                    </article>
+                    <article class="rounded-2xl border border-brand-border bg-brand-dark/80 p-5 sm:col-span-2">
+                        <div class="flex items-start gap-4">
+                            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-brand-cyan/30 bg-brand-cyan/10 text-brand-cyan">
+                                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            </span>
+                            <div>
+                                <h3 class="mb-2 font-bold text-white">Cerca de ti, en El Salvador</h3>
+                                <p class="text-sm leading-relaxed text-brand-muted">Estamos en Sonsonate. Al preparar tu pedido puedes elegir retiro en tienda o consultar las opciones de envío disponibles.</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hero Banner Section -->
+    <section class="relative overflow-hidden border-b border-brand-border/80 bg-grid-pattern py-10 sm:py-12 lg:py-16">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-brand-dark/80 to-brand-dark pointer-events-none"></div>
+        
+        <div class="relative mx-auto grid max-w-7xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+            <div class="text-center lg:text-left">
+                <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-brand-orange/10 px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider text-brand-orange">
+                    <i class="fa-solid fa-print" aria-hidden="true"></i>
+                    <span>FORJA · Construye lo que imaginas</span>
+                </div>
+
+                <h1 class="mb-4 text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    Somos FORJA: de tu idea a una <span class="text-gradient-orange">pieza real</span>
+                </h1>
+
+                <p class="mx-auto mb-7 max-w-xl text-base leading-relaxed text-brand-muted sm:text-lg lg:mx-0">
+                    Acercamos la impresión 3D a creadores y proyectos en El Salvador con equipos, materiales y cotización de piezas personalizadas.
+                    <strong class="text-brand-text">Construye lo que imaginas.</strong>
+                </p>
+
+                <div class="mb-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+                    <button type="button" onclick="openFilamentCalc()" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-brand-orange px-6 py-3 text-sm font-bold text-white shadow-glow-orange transition-all hover:bg-brand-orangeHover">
+                        <i class="fa-solid fa-calculator" aria-hidden="true"></i>
+                        Cotizar impresión
+                    </button>
+                    <button type="button" onclick="openCatalogDrawer()" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-card/80 px-6 py-3 text-sm font-bold text-brand-text transition-colors hover:border-brand-cyan hover:text-brand-cyan">
+                        <i class="fa-solid fa-cubes" aria-hidden="true"></i>
+                        Ver catálogo
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-2.5 text-xs font-medium text-brand-muted lg:justify-start">
+                    <span class="rounded-full border border-brand-border/80 bg-brand-card/70 px-3 py-1.5">FDM y resina</span>
+                    <span class="rounded-full border border-brand-border/80 bg-brand-card/70 px-3 py-1.5">Retiro en tienda</span>
+                    <span class="rounded-full border border-brand-border/80 bg-brand-card/70 px-3 py-1.5">Envíos disponibles</span>
+                </div>
+            </div>
+
+            <figure class="mx-auto w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-white p-3 shadow-2xl shadow-black/30">
+                <img src="/images/bambu_lab.jpg" alt="Impresora 3D Bambu Lab P1S del catálogo FORJA" fetchpriority="high" decoding="async" class="h-56 w-full rounded-2xl object-contain sm:h-72 lg:h-[22rem]">
+                <figcaption class="flex items-center justify-between gap-3 px-2 pb-1 pt-3 text-sm">
+                    <span class="font-semibold text-slate-800">Tecnología para crear</span>
+                    <span class="font-mono text-xs text-slate-500">FDM · SLA</span>
+                </figcaption>
+            </figure>
+        </div>
+    </section>
+
+    <!-- Full catalog drawer -->
+    <div id="catalogDrawer" class="fixed inset-0 z-50 pointer-events-none" aria-hidden="true" inert>
+        <button id="catalogBackdrop" type="button" onclick="closeCatalogDrawer()" tabindex="-1" aria-label="Cerrar catálogo" class="absolute inset-0 h-full w-full bg-black/75 opacity-0 backdrop-blur-sm transition-opacity duration-300"></button>
+        <section id="catalogPanel" role="dialog" aria-modal="true" aria-labelledby="catalogDrawerTitle" class="absolute inset-y-0 right-0 flex w-full max-w-7xl translate-x-full flex-col overflow-y-auto overscroll-contain border-l border-brand-border bg-brand-dark shadow-2xl transition-transform duration-300">
+            <header class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-brand-border bg-brand-dark/95 px-4 py-4 backdrop-blur sm:px-6">
+                <div>
+                    <p class="font-mono text-xs uppercase tracking-wider text-brand-orange">FORJA · Tienda</p>
+                    <h2 id="catalogDrawerTitle" class="text-xl font-extrabold text-white sm:text-2xl">Catálogo de impresión 3D</h2>
+                </div>
+                <button type="button" onclick="closeCatalogDrawer()" aria-label="Cerrar catálogo" class="rounded-xl border border-brand-border bg-brand-card p-2.5 text-brand-muted transition-colors hover:text-white">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </header>
+
+    <!-- Main Catalog Section -->
+    <main id="catalogSection" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        
+        <div class="mb-6">
+            <label for="catalogSearchInput" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-muted">Buscar en el catálogo</label>
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted text-sm" aria-hidden="true"></i>
+                <input type="text" id="catalogSearchInput" oninput="handleSearch(this.value)" placeholder="Nombre, material o categoría..." aria-label="Buscar productos del catálogo" class="w-full rounded-xl border border-brand-border bg-brand-darker py-3 pl-10 pr-11 text-sm text-brand-text placeholder-brand-muted focus:border-brand-orange focus:outline-none focus:ring-1 focus:ring-brand-orange">
+                <button type="button" id="clearCatalogSearch" onclick="clearSearch()" aria-label="Limpiar búsqueda" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-white">
+                    <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Filter Pills Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-extrabold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-brand-orange"></i>
+                    <span>Especialidades de Impresión 3D</span>
+                </h2>
+                <span id="productCounter" aria-live="polite" aria-atomic="true" class="text-xs text-brand-muted font-mono bg-brand-card px-3 py-1 rounded-lg border border-brand-border">Cargando catálogo...</span>
+            </div>
+
+            <!-- Category Pills Slider -->
+            <div class="flex items-center space-x-2.5 overflow-x-auto pb-2 no-scrollbar" id="categoryPillContainer">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+
+        <!-- Toolbar: Sort and Active Filters -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-brand-card/60 p-4 rounded-2xl border border-brand-border/80">
+            <div class="flex items-center space-x-3 w-full sm:w-auto">
+                <label for="sortSelect" class="text-xs font-semibold uppercase text-brand-muted font-mono">Ordenar:</label>
+                <select id="sortSelect" onchange="applySort(this.value)" class="bg-brand-dark border border-brand-border text-xs text-brand-text rounded-xl px-3 py-2 focus:outline-none focus:border-brand-orange font-mono">
+                    <option value="featured">Relevancia / Destacados</option>
+                    <option value="price-asc">Precio: Menor a Mayor</option>
+                    <option value="price-desc">Precio: Mayor a Menor</option>
+                    <option value="name-asc">Nombre (A - Z)</option>
+                </select>
+            </div>
+
+            <div id="activeFilterBadge" class="hidden flex items-center space-x-2 text-xs bg-brand-orange/15 text-brand-orange border border-brand-orange/30 px-3.5 py-1.5 rounded-xl font-mono">
+                <span>Filtro activo: <strong id="activeFilterText" class="font-bold"></strong></span>
+                <button onclick="resetFilters()" class="ml-2 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Dynamic product cards injected here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden py-16 text-center glass-panel rounded-3xl border border-brand-border my-8">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-brand-orange/15 border border-brand-orange/30 flex items-center justify-center text-brand-orange text-2xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">No encontramos insumos 3D con esa búsqueda</h3>
+            <p class="text-brand-muted max-w-md mx-auto text-sm mb-6">Prueba seleccionando categorías como "Filamentos", "Impresoras 3D" o buscando palabras clave como "PLA", "PEI" o "Boquilla".</p>
+            <button onclick="resetFilters()" class="px-5 py-2.5 rounded-xl bg-brand-orange text-white font-bold text-sm hover:bg-brand-orangeHover transition-all shadow-glow-orange">
+                Restablecer Filtros
+            </button>
+        </div>
+
+    </main>
+        </section>
+    </div>
+
+    <!-- 3D Printing & STL Estimator Calculator Section -->
+    <section id="calcSection" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 hidden">
+        <div class="glass-panel-orange p-6 sm:p-8 rounded-3xl relative overflow-hidden">
+            
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="p-3 bg-brand-orange/20 border border-brand-orange/40 rounded-2xl text-brand-orange">
+                    <i class="fa-solid fa-calculator text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black text-white">Calculadora & Cotizador de Piezas 3D</h3>
+                    <p class="text-xs sm:text-sm text-brand-muted">Sube tu estimación de peso y tiempo para calcular costos de impresión personalizada.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Inputs Column 1 -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="calcMaterial" class="block text-xs font-semibold text-brand-muted uppercase font-mono mb-1.5">Material de Impresión</label>
+                        <select id="calcMaterial" onchange="calculate3DPrint()" class="w-full bg-brand-dark border border-brand-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-orange font-mono">
+                            <option value="PLA">PLA+ High Speed ($24.00/kg)</option>
+                            <option value="PETG">PETG Técnico ($26.00/kg)</option>
+                            <option value="ABS">ABS/ASA Industrial ($28.00/kg)</option>
+                            <option value="TPU">TPU Flexible 95A ($32.00/kg)</option>
+                            <option value="Resina">Resina UV SLA Standard ($38.00/L)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="calcWeight" class="block text-xs font-semibold text-brand-muted uppercase font-mono mb-1.5">Peso Estimado de la Pieza (Gramos)</label>
+                        <input type="number" id="calcWeight" value="150" min="1" max="10000" oninput="calculate3DPrint()" class="w-full bg-brand-dark border border-brand-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-orange font-mono">
+                    </div>
+                </div>
+
+                <!-- Inputs Column 2 -->
+                <div class="space-y-4">
+                    <div>
+                        <label for="calcResolution" class="block text-xs font-semibold text-brand-muted uppercase font-mono mb-1.5">Resolución de Capa</label>
+                        <select id="calcResolution" onchange="calculate3DPrint()" class="w-full bg-brand-dark border border-brand-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-orange font-mono">
+                            <option value="0.12">0.12 mm (Súper Fina / Alta Detalle)</option>
+                            <option value="0.20" selected>0.20 mm (Estándar Estructural)</option>
+                            <option value="0.28">0.28 mm (Borrador / Rápida)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="calcHours" class="block text-xs font-semibold text-brand-muted uppercase font-mono mb-1.5">Horas Estimadas de Máquina</label>
+                        <input type="number" id="calcHours" value="6.0" step="0.5" min="0.1" oninput="calculate3DPrint()" class="w-full bg-brand-dark border border-brand-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-orange font-mono">
+                    </div>
+                </div>
+
+                <!-- Cost Breakdown Output -->
+                <div class="bg-brand-darker/90 p-5 rounded-2xl border border-brand-border flex flex-col justify-between">
+                    <h4 class="text-xs font-mono uppercase text-brand-cyan tracking-wider font-extrabold mb-3 flex items-center justify-between">
+                        <span>Desglose de Cotización</span>
+                        <i class="fa-solid fa-receipt"></i>
+                    </h4>
+                    
+                    <div class="space-y-2 font-mono text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-brand-muted">Costo Insumo Material:</span>
+                            <span id="resMaterialCost" class="text-white font-bold">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-brand-muted">Energía & Amortización:</span>
+                            <span id="resEnergyCost" class="text-white font-bold">$0.00</span>
+                        </div>
+                        <div class="flex justify-between border-t border-brand-border/60 pt-2 text-sm">
+                            <span class="text-brand-muted font-sans font-semibold">Total Estimado:</span>
+                            <span id="resTotalCost" class="text-xl font-black text-brand-orange">$0.00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="addFilamentServiceToCart()" class="mt-4 w-full py-2.5 bg-brand-cyan/20 hover:bg-brand-cyan/30 text-brand-cyan border border-brand-cyan/40 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-cart-plus"></i>
+                        <span>Agregar Cotización a Mi Proyecto</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-5 flex items-start gap-3 rounded-2xl border border-brand-cyan/20 bg-brand-cyan/5 p-4 text-xs leading-relaxed text-brand-muted">
+                <i class="fa-solid fa-circle-info mt-0.5 text-brand-cyan" aria-hidden="true"></i>
+                <p>Este resultado es una estimación; el costo final puede variar según el diseño, material y complejidad de la pieza.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Detail Modal with Interactive 3D Canvas -->
+    <div id="productModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-brand-card border border-brand-border rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl scale-95 transition-transform duration-300" id="modalContainer">
+            
+            <div class="relative p-6 border-b border-brand-border flex items-center justify-between bg-brand-darker/60">
+                <div class="flex items-center space-x-3">
+                    <span id="modalCategoryBadge" class="px-2.5 py-1 rounded-md bg-brand-orange/20 text-brand-orange border border-brand-orange/40 text-xs font-bold uppercase font-mono">Categoría</span>
+                    <span class="text-xs text-brand-muted font-mono" id="modalSku">SKU: FORJA-000</span>
+                </div>
+                <button type="button" onclick="closeModal()" aria-label="Cerrar detalles del producto" class="text-brand-muted hover:text-white p-2 rounded-xl bg-brand-dark border border-brand-border">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left: Interactive 3D Canvas / Image Toggle -->
+                <div class="space-y-3">
+                    <div class="relative rounded-2xl overflow-hidden bg-brand-darker border border-brand-border aspect-square">
+                        <img id="modalImage" src="" alt="" class="w-full h-full object-cover">
+                        <div id="modal3DCanvasContainer" class="absolute inset-0 bg-brand-darker hidden">
+                            <canvas id="threeCanvas" class="w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+                            <div class="absolute bottom-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-md border border-white/10 text-[10px] font-mono text-brand-cyan">
+                                <i class="fa-solid fa-arrows-spin mr-1"></i> Modelo 3D Interactivo (Arrastra para rotar)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <button onclick="switchModalView('image')" id="btnViewImg" class="flex-1 py-2 rounded-xl bg-brand-orange text-white text-xs font-mono font-bold transition-all border border-brand-orange">
+                            <i class="fa-solid fa-image mr-1"></i> Fotografía
+                        </button>
+                        <button onclick="switchModalView('3d')" id="btnView3D" class="flex-1 py-2 rounded-xl bg-brand-dark hover:bg-brand-border text-brand-muted hover:text-white text-xs font-mono font-bold transition-all border border-brand-border">
+                            <i class="fa-solid fa-cube mr-1"></i> Modelado 3D
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Specifications & Datasheet -->
+                <div class="flex flex-col justify-between space-y-4">
+                    <div>
+                        <h2 id="modalTitle" class="text-2xl font-black text-white mb-2 leading-tight">Nombre del Producto</h2>
+                        <div id="modalPrice" class="text-3xl font-black text-brand-orange font-mono mb-4">$0.00</div>
+
+                        <p id="modalDescription" class="text-sm text-brand-muted leading-relaxed mb-4">
+                            Descripción completa del insumo de impresión 3D.
+                        </p>
+
+                        <div class="mb-4">
+                            <h4 class="text-xs font-mono font-bold uppercase text-brand-muted mb-2">Parámetros Destacados:</h4>
+                            <div id="modalTags" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <div class="p-4 bg-brand-darker rounded-2xl border border-brand-border font-mono text-xs space-y-2">
+                            <div class="text-brand-cyan font-bold flex items-center space-x-1.5">
+                                <i class="fa-solid fa-sliders"></i>
+                                <span>Ficha Técnica & Recomendaciones:</span>
+                            </div>
+                            <ul id="modalSpecsList" class="list-disc list-inside text-brand-muted space-y-1"></ul>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-brand-border/60">
+                        <button id="modalAddToCartBtn" class="w-full py-3.5 px-4 bg-brand-orange hover:bg-brand-orangeHover text-white font-bold rounded-2xl text-sm shadow-glow-orange transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>Agregar a Mi Lista de Materiales (BOM)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden pointer-events-none">
+        <div id="cartBackdrop" onclick="closeCartDrawer()" class="absolute inset-0 bg-black/70 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+            <div id="cartPanel" class="w-screen max-w-md bg-brand-card border-l border-brand-border shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out pointer-events-auto">
+                
+                <div class="p-6 border-b border-brand-border bg-brand-darker/60 flex items-center justify-between">
+                    <div class="flex items-center space-x-2.5">
+                        <i class="fa-solid fa-boxes-packing text-brand-orange text-xl"></i>
+                        <div>
+                            <h3 class="text-base font-bold text-white font-mono">Proyecto / Lista BOM 3D</h3>
+                            <p class="text-[11px] text-brand-muted">Bill of Materials - Impresión 3D</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeCartDrawer()" aria-label="Cerrar proyecto BOM" class="text-brand-muted hover:text-white p-2 rounded-xl bg-brand-dark border border-brand-border">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+
+                <div id="cartEmptyState" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                    <div class="w-16 h-16 rounded-full bg-brand-border/40 flex items-center justify-center text-brand-muted text-2xl mb-3">
+                        <i class="fa-solid fa-print"></i>
+                    </div>
+                    <p class="text-brand-muted text-sm mb-4">No has añadido equipos ni filamentos a tu lista aún.</p>
+                    <button onclick="closeCartDrawer()" class="px-4 py-2 bg-brand-orange/20 text-brand-orange border border-brand-orange/40 rounded-xl text-xs font-bold font-mono">
+                        Explorar Catálogo 3D
+                    </button>
+                </div>
+
+                <div class="p-6 border-t border-brand-border bg-brand-darker/80 space-y-4">
+                    
+                    <div id="shippingAddressSection" class="space-y-1.5">
+                        <label for="shippingAddress" class="block text-[11px] font-bold text-brand-muted uppercase font-mono">Dirección de envío:</label>
+                        <textarea id="shippingAddress" rows="3" autocomplete="street-address" placeholder="Calle, colonia o barrio, municipio, departamento y punto de referencia" class="w-full resize-y bg-brand-dark border border-brand-border rounded-xl p-3 text-xs text-white placeholder-brand-muted focus:outline-none focus:border-brand-orange font-sans"></textarea>
+                        <p class="text-[10px] text-brand-muted">Escribe la dirección completa para coordinar la entrega.</p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="cartShippingSelect" class="block text-[11px] font-bold text-brand-muted uppercase font-mono">Destino y Método de Envío (El Salvador):</label>
+                        <select id="cartShippingSelect" onchange="handleShippingMethodChange()" class="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-xs text-white focus:outline-none focus:border-brand-orange font-mono">
+                            <option value="0">Sonsonate Centro (Casco Urbano) - ¡GRATIS! (Suministros)</option>
+                            <option value="3.50">Municipios Aledaños (Sonsonate) - $3.50</option>
+                            <option value="4.50">Envío Nacional (Cargo Expreso / C807) - $4.50</option>
+                            <option value="0" data-store-pickup="true">Retirar en la tienda</option>
+                        </select>
+                        <p class="text-[10px] text-brand-muted italic">*Nota: Equipos de gran volumen (Impresoras 3D) requieren coordinación previa de flete.</p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label for="cartPaymentSelect" class="block text-[11px] font-bold text-brand-muted uppercase font-mono">Método de Pago:</label>
+                        <select id="cartPaymentSelect" onchange="handlePaymentMethodChange()" class="w-full bg-brand-dark border border-brand-border rounded-xl p-2 text-xs text-white focus:outline-none focus:border-brand-orange font-mono">
+                            <option value="transfer">Transferencia Bancaria</option>
+                            <option value="wallet">Billetera Digital Autorizada</option>
+                            <option value="cash">Efectivo a Contraentrega (Solo Sonsonate Centro)</option>
+                        </select>
+                        <p id="cashPaymentNotice" class="hidden text-[10px] text-amber-400 font-mono"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Pago en efectivo válido únicamente para casco urbano de Sonsonate.</p>
+                    </div>
+
+                    <div class="flex items-start space-x-2 pt-1">
+                        <input type="checkbox" id="acceptTermsCheckbox" class="mt-0.5 rounded bg-brand-dark border-brand-border text-brand-orange focus:ring-brand-orange">
+                        <label for="acceptTermsCheckbox" class="text-[11px] text-brand-muted leading-tight">
+                            He leído y acepto las <a href="#" onclick="openPoliciesModal(); return false;" class="text-brand-orange underline font-semibold">Políticas de la Tienda FORJA</a> y condiciones de garantía/envío.
+                        </label>
+                    </div>
+
+                    <div class="space-y-1.5 font-mono text-xs border-t border-brand-border/60 pt-3">
+                        <div class="flex justify-between text-brand-muted">
+                            <span>Subtotal Insumos:</span>
+                            <span id="cartSubtotal" class="text-white font-bold">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-brand-muted">
+                            <span>Costo de Envío:</span>
+                            <span id="cartShippingCost" class="text-emerald-400 font-bold">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-base font-black border-t border-brand-border/60 pt-2 text-white">
+                            <span>Total Estimado:</span>
+                            <span id="cartTotal" class="text-brand-orange">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportBOMCSV()" class="py-3 px-3 bg-brand-border/50 hover:bg-brand-border text-brand-text rounded-xl text-xs font-bold font-mono border border-brand-border transition-all flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-file-csv text-brand-cyan"></i>
+                            <span>Exportar CSV</span>
+                        </button>
+                        <button onclick="processCheckout()" class="py-3 px-3 bg-brand-orange hover:bg-brand-orangeHover text-white rounded-xl text-xs font-bold font-mono shadow-glow-orange transition-all flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Confirmar Pedido</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Store Policies Modal (El Salvador Legal Standards) -->
+    <div id="policiesModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-brand-card border border-brand-border rounded-3xl max-w-5xl w-full h-[88vh] flex flex-col shadow-2xl scale-95 transition-transform duration-300" id="policiesModalContainer">
+            
+            <div class="p-5 sm:p-6 border-b border-brand-border flex items-center justify-between bg-brand-darker/80 rounded-t-3xl">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-orange/20 border border-brand-orange/40 flex items-center justify-center text-brand-orange font-bold text-lg shadow-glow-orange">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-black text-white font-mono">Políticas de la Tienda FORJA</h2>
+                        <p class="text-xs text-brand-muted font-sans">FORJA: "Construye lo que imaginas" &bull; Sonsonate, El Salvador</p>
+                    </div>
+                </div>
+                <button onclick="closePoliciesModal()" class="text-brand-muted hover:text-white p-2 rounded-xl bg-brand-dark border border-brand-border transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                
+                <!-- Sidebar Nav Pills -->
+                <div class="w-full md:w-64 bg-brand-darker border-b md:border-b-0 md:border-r border-brand-border p-3 overflow-x-auto md:overflow-y-auto no-scrollbar flex md:flex-col space-x-2 md:space-x-0 md:space-y-1.5 shrink-0">
+                    <button onclick="switchPolicyTab('sec-1')" id="tabBtn-sec-1" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal bg-brand-orange text-white">
+                        <i class="fa-solid fa-crosshairs text-xs"></i>
+                        <span>1. Objetivo y Alcance</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-2')" id="tabBtn-sec-2" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-circle-info text-xs"></i>
+                        <span>2. Info Transparente</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-3')" id="tabBtn-sec-3" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-credit-card text-xs"></i>
+                        <span>3. Pagos y Pre-órdenes</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-4')" id="tabBtn-sec-4" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-truck-fast text-xs"></i>
+                        <span>4. Envíos y Entregas</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-5')" id="tabBtn-sec-5" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-rotate-left text-xs"></i>
+                        <span>5. Cambios y Garantías</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-6')" id="tabBtn-sec-6" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-microchip text-xs"></i>
+                        <span>6. Responsabilidad Técnica</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-7')" id="tabBtn-sec-7" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-user-shield text-xs"></i>
+                        <span>7. Privacidad de Datos</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-8')" id="tabBtn-sec-8" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-comments text-xs"></i>
+                        <span>8. Atención y Reclamos</span>
+                    </button>
+                    <button onclick="switchPolicyTab('sec-9')" id="tabBtn-sec-9" class="policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40">
+                        <i class="fa-solid fa-gavel text-xs"></i>
+                        <span>9. Normativa Legal ES</span>
+                    </button>
+                </div>
+
+                <!-- Policy Text Body -->
+                <div class="flex-1 p-6 overflow-y-auto space-y-6 text-sm text-brand-muted leading-relaxed" id="policyContentBody">
+                    
+                    <div id="policySec-sec-1" class="policySectionBlock space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-crosshairs"></i>
+                            <h3>1. Objetivo y Alcance</h3>
+                        </div>
+                        <p>
+                            Estas políticas establecen criterios para atender a los clientes de <strong>FORJA (“Construye lo que imaginas”)</strong>, gestionar pedidos, coordinar entregas, atender solicitudes de cambio o devolución y proteger la información personal. Se aplica a consultas y compras presenciales o por canales digitales de la tienda.
+                        </p>
+                    </div>
+
+                    <div id="policySec-sec-2" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <h3>2. Información Clara y Transparente</h3>
+                        </div>
+                        <p>
+                            FORJA procurará presentar información clara, veraz y actualizada de cada producto: nombre, características, compatibilidad, precio, código y disponibilidad.
+                        </p>
+                        <p>
+                            Antes de confirmar una compra se informará el precio total, los costos adicionales aplicables (como envíos), la forma de pago y el plazo estimado de entrega.
+                        </p>
+                        <p>
+                            Las fotografías serán ilustrativas; si el producto o accesorios difieren de la imagen (ej. color de placas o empaques), se explicará antes de concretar la compra.
+                        </p>
+                    </div>
+
+                    <div id="policySec-sec-3" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <h3>3. Pedidos, Pagos y Pedidos Especiales</h3>
+                        </div>
+                        <p>
+                            <strong>Gestión de pedidos:</strong> Los pedidos podrán solicitarse por los canales oficiales que FORJA habilite. La reserva de componentes dependerá de la disponibilidad en el inventario.
+                        </p>
+                        <p>
+                            <strong>Métodos de pago aceptados:</strong> Aceptamos transferencias bancarias, billeteras digitales autorizadas y pago en efectivo a contraentrega (este último válido únicamente para entregas locales en el casco urbano de Sonsonate). FORJA nunca solicitará contraseñas bancarias ni códigos confidenciales de seguridad.
+                        </p>
+                        <div class="p-4 rounded-2xl bg-brand-darker border border-brand-orange/40 space-y-2 mt-2">
+                            <strong class="text-brand-orange font-mono text-xs block">Política de Pedidos Especiales (Pre-órdenes):</strong>
+                            <p class="text-xs">
+                                Si un cliente requiere un material o equipo de impresión 3D fuera del catálogo, podrá solicitar un "Pedido Especial". Esto requerirá un anticipo no reembolsable del 50% del valor cotizado, con un tiempo de entrega estimado de 15 a 30 días hábiles.
+                            </p>
+                            <strong class="text-white font-mono text-xs block pt-2">Cláusula de Abandono de Reservas y Pedidos Especiales:</strong>
+                            <p class="text-xs">
+                                Cuando un cliente realice un Pedido Especial y FORJA le notifique que el producto ya se encuentra disponible para su retiro o entrega, el cliente dispondrá de un plazo máximo de 30 días calendario para cancelar el saldo restante y recibir su producto. Transcurrido este plazo sin respuesta o sin haberse concretado el pago, FORJA considerará el artículo en estado de abandono y lo reingresará al inventario general para su venta al público. En este escenario, el anticipo del 50% brindado inicialmente no será reembolsable, ya que cubrirá los costos logísticos, administrativos y de importación.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="policySec-sec-4" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <h3>4. Envíos y Entregas</h3>
+                        </div>
+                        <p>
+                            La atención prioritaria de FORJA se orienta a Sonsonate y municipios aledaños, pero contamos con cobertura nacional:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-xs font-mono">
+                            <li class="bg-brand-darker p-3 rounded-xl border border-brand-cyan/40">
+                                <strong class="text-brand-cyan">Cobertura local (Sonsonate centro): ¡Envío GRATUITO!</strong> Para apoyar a nuestra comunidad tecnológica local, las entregas dentro del casco urbano de Sonsonate no tienen costo de envío aplicable a compras de suministros regulares (componentes electrónicos, filamentos, herramientas). <em>(Nota: Queda excluido de esta política de envío gratuito el equipo de gran volumen o peso, como impresoras 3D, cuyo transporte requerirá logística especial y su costo se coordinará previamente con el cliente).</em>
+                            </li>
+                            <li class="bg-brand-darker p-3 rounded-xl border border-brand-border">
+                                <strong class="text-white">Municipios aledaños:</strong> El envío tiene un costo fijo de $3.50.
+                            </li>
+                            <li class="bg-brand-darker p-3 rounded-xl border border-brand-border">
+                                <strong class="text-brand-orange">Envíos Nacionales:</strong> Para el resto de El Salvador, utilizamos servicios formales de paquetería como Cargo Expreso o C807 Express por un costo estándar de $4.50 (sujeto a variaciones por volumen, como en el caso de impresoras 3D). El tiempo estimado es de 2 a 4 días hábiles.
+                            </li>
+                        </ul>
+                        <p class="text-xs pt-1">
+                            <strong>Recepción:</strong> Se recomienda al cliente revisar el empaque y estado visible al recibir el producto. Esta revisión no elimina los derechos legales por defectos.
+                        </p>
+                    </div>
+
+                    <div id="policySec-sec-5" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <h3>5. Cambios, Devoluciones y Garantías</h3>
+                        </div>
+                        <p>
+                            FORJA atenderá cada solicitud conforme a la Ley de Protección al Consumidor de El Salvador.
+                        </p>
+                        <p>
+                            <strong>Plazos y condiciones:</strong> Se aceptan reportes por defectos de fábrica dentro de los primeros 7 días calendario posteriores a la entrega. El cliente debe conservar comprobante, empaque y accesorios originales.
+                        </p>
+                        <p>
+                            <strong>Excepciones técnicas:</strong> Dada la naturaleza de los componentes electrónicos (Kits, Arduino, Raspberry), FORJA podrá solicitar una descripción del uso o fotografías para comprender el inconveniente. No se aceptarán devoluciones por daños derivados de manipulación incorrecta, polaridad invertida, cortocircuitos o soldaduras mal aplicadas por el usuario. Los filamentos PLA desprecintados no tienen cambio salvo defecto de manufactura.
+                        </p>
+                        <p>
+                            <strong>Reversiones:</strong> Cuando legalmente corresponda, FORJA tramitará la reversión del pago en los plazos establecidos por la normativa (ej. derecho de retracto, productos distintos o defectuosos).
+                        </p>
+                    </div>
+
+                    <div id="policySec-sec-6" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-microchip"></i>
+                            <h3>6. Condiciones Generales y Responsabilidad Técnica</h3>
+                        </div>
+                        <p>
+                            El cliente debe verificar la compatibilidad técnica del producto con su equipo o proyecto. Los productos deben utilizarse según las indicaciones del fabricante.
+                        </p>
+                        <div class="p-4 rounded-2xl bg-brand-darker border border-brand-border text-xs space-y-1 font-mono">
+                            <span class="text-brand-cyan font-bold">Cláusula de Responsabilidad Técnica:</span>
+                            <p class="text-brand-muted font-sans text-xs">
+                                FORJA garantiza el estado funcional de los componentes al momento de la venta. Sin embargo, el diseño, ensamblaje, programación y el éxito del proyecto final son responsabilidad exclusiva del cliente. La instalación incorrecta o modificaciones no autorizadas invalidan la garantía del equipo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="policySec-sec-7" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <h3>7. Privacidad y Protección de Datos</h3>
+                        </div>
+                        <p>
+                            FORJA recopilará únicamente los datos necesarios para procesar pedidos, coordinar entregas y gestionar pagos (nombre, teléfono, dirección).
+                        </p>
+                        <p>
+                            No se venderán datos personales. Solo se compartirán de forma indispensable con proveedores de logística (como Cargo Expreso) para asegurar la entrega.
+                        </p>
+                        <p>
+                            El tratamiento de la información se rige por la Ley para la Protección de Datos Personales. El cliente podrá solicitar la actualización o consulta de sus datos en cualquier momento.
+                        </p>
+                    </div>
+
+                    <div id="policySec-sec-8" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-comments"></i>
+                            <h3>8. Atención de Consultas y Reclamos</h3>
+                        </div>
+                        <p>
+                            Para agilizar la atención, el cliente deberá indicar su nombre, fecha de compra y producto. FORJA procurará responder de forma oportuna y respetuosa. Si no se alcanza una solución, el consumidor mantiene su derecho de acudir a la Defensoría del Consumidor de El Salvador.
+                        </p>
+                    </div>
+
+                    <div id="policySec-sec-9" class="policySectionBlock hidden space-y-3">
+                        <div class="flex items-center space-x-2 text-brand-orange font-bold font-mono text-base">
+                            <i class="fa-solid fa-gavel"></i>
+                            <h3>9. Normativa de Referencia</h3>
+                        </div>
+                        <ul class="list-disc list-inside space-y-2 text-xs font-mono text-white">
+                            <li class="bg-brand-darker p-3 rounded-xl border border-brand-border">Ley de Protección al Consumidor (Reformas 2024).</li>
+                            <li class="bg-brand-darker p-3 rounded-xl border border-brand-border">Ley para la Protección de Datos Personales (Noviembre 2024 / Reformas Septiembre 2026).</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="p-4 border-t border-brand-border bg-brand-darker/90 rounded-b-3xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+                <span class="text-brand-muted"><i class="fa-solid fa-check text-emerald-400 mr-1.5"></i> FORJA &bull; "Construye lo que imaginas"</span>
+                <button onclick="closePoliciesModal()" class="w-full sm:w-auto px-6 py-2 bg-brand-orange hover:bg-brand-orangeHover text-white font-bold rounded-xl shadow-glow-orange transition-all">
+                    Aceptar y Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- Footer -->
+    <footer class="border-t border-brand-border bg-brand-darker py-12 text-sm text-brand-muted">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+                
+                <div class="space-y-4">
+                    <a href="#" onclick="resetFilters(); window.scrollTo({ top: 0, behavior: 'smooth' }); return false;" aria-label="FORJA, volver al inicio" class="inline-flex rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-cyan">
+                        <span class="flex h-[88px] w-[116px] items-center justify-center overflow-hidden rounded-xl border border-white/60 bg-slate-100 p-1 shadow-md">
+                            <img src="/images/forja-logo.png" alt="FORJA — Construye lo que imaginas" class="h-full w-full object-contain">
+                        </span>
+                    </a>
+                    <p class="max-w-xs text-sm leading-relaxed text-brand-muted">
+                        Especialistas en impresión 3D y suministro de tecnologías de fabricación aditiva FDM y Resina SLA.
+                    </p>
+                    <p class="font-mono text-xs font-bold text-brand-cyan">"Construye lo que imaginas"</p>
+                </div>
+
+                <nav aria-label="Categorías de productos">
+                    <h4 class="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-white">Líneas de impresión 3D</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="openCatalogCategory('Impresoras 3D'); return false;" class="transition-colors hover:text-brand-orange">Impresoras FDM & SLA</a></li>
+                        <li><a href="#" onclick="openCatalogCategory('Filamentos'); return false;" class="transition-colors hover:text-brand-orange">Filamentos PLA+, PETG, TPU</a></li>
+                        <li><a href="#" onclick="openCatalogCategory('Resinas UV'); return false;" class="transition-colors hover:text-brand-orange">Resinas fotopolímero 405nm</a></li>
+                        <li><a href="#" onclick="openCatalogCategory('Boquillas y Hotends'); return false;" class="transition-colors hover:text-brand-orange">Boquillas Rubí & Acero</a></li>
+                    </ul>
+                </nav>
+
+                <nav aria-label="Herramientas y políticas">
+                    <h4 class="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-white">Herramientas & políticas</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" onclick="openPoliciesModal(); return false;" class="font-semibold text-brand-orange transition-colors hover:text-white"><i class="fa-solid fa-scale-balanced mr-1.5" aria-hidden="true"></i>Políticas de la tienda</a></li>
+                        <li><a href="#" onclick="openPoliciesModal('sec-4'); return false;" class="transition-colors hover:text-brand-cyan">Envíos Sonsonate & nacional</a></li>
+                        <li><a href="#" onclick="openFilamentCalc(); return false;" class="transition-colors hover:text-brand-cyan">Cotizador de impresión 3D</a></li>
+                        <li><a href="#" onclick="openCartDrawer(); return false;" class="transition-colors hover:text-brand-cyan">Abrir lista de materiales (BOM)</a></li>
+                    </ul>
+                </nav>
+
+                <div>
+                    <h4 class="mb-4 font-mono text-xs font-bold uppercase tracking-wider text-white">Atención & cobertura</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-2.5"><i class="fa-solid fa-location-dot mt-0.5 w-4 shrink-0 text-brand-orange" aria-hidden="true"></i><span>Sonsonate centro & cobertura El Salvador</span></li>
+                        <li class="flex items-start gap-2.5"><i class="fa-solid fa-envelope mt-0.5 w-4 shrink-0 text-brand-orange" aria-hidden="true"></i><a href="mailto:soporte@forja3d.sv" class="break-all transition-colors hover:text-brand-cyan">soporte@forja3d.sv</a></li>
+                        <li class="flex items-start gap-2.5"><i class="fa-solid fa-building-columns mt-0.5 w-4 shrink-0 text-brand-cyan" aria-hidden="true"></i><a href="#" onclick="openPoliciesModal('sec-9'); return false;" class="transition-colors hover:text-brand-cyan">Ley de Protección al Consumidor (ES)</a></li>
+                    </ul>
+                    <div class="pt-4">
+                        <a href="https://www.facebook.com/profile.php?id=61595188349677" target="_blank" rel="noopener noreferrer" aria-label="Visita FORJA 3D Labs en Facebook" title="FORJA 3D Labs en Facebook" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-muted transition-colors hover:border-brand-cyan hover:text-brand-cyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-cyan">
+                            <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col items-center justify-between gap-2 border-t border-brand-border/60 pt-6 text-center text-xs sm:flex-row sm:text-left">
+                <p>&copy; 2026 FORJA 3D Labs. Todos los derechos reservados.</p>
+                <p class="mt-2 sm:mt-0 font-mono text-brand-muted">Especialistas en Fabricación Aditiva &bull; Sonsonate, ES</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="forja-chat" class="forja-chat">
+        <section id="forja-chat-panel" class="forja-chat__panel" role="dialog" aria-modal="true" aria-labelledby="forja-chat-title" aria-hidden="true" hidden>
+            <header class="forja-chat__header">
+                <div class="forja-chat__identity">
+                    <span class="forja-chat__avatar" aria-hidden="true"><i class="fa-solid fa-robot"></i></span>
+                    <div>
+                        <h2 id="forja-chat-title">FORJA AI PRO</h2>
+                        <p id="forja-chat-status" class="forja-chat__status">Comprobando configuración…</p>
+                    </div>
+                </div>
+                <div class="forja-chat__header-actions">
+                    <button id="forja-chat-reset" class="forja-chat__icon-button" type="button" aria-label="Reiniciar conversación" title="Reiniciar conversación"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button id="forja-chat-close" class="forja-chat__icon-button" type="button" aria-label="Cerrar chat" title="Cerrar chat"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </header>
+            <div id="forja-chat-messages" class="forja-chat__messages" aria-live="polite" aria-relevant="additions text"></div>
+            <div id="forja-chat-quick-actions" class="forja-chat__quick-actions">
+                <button type="button" data-prompt="Recomiéndame una impresora 3D del catálogo y dime qué información necesitas para elegir.">Recomiéndame una impresora</button>
+                <button type="button" data-prompt="Ayúdame a elegir entre los filamentos del catálogo para mi proyecto.">¿Qué filamento necesito?</button>
+                <button type="button" data-prompt="Explícame cómo puedo cotizar una impresión 3D con la calculadora de esta página.">Cotizar impresión 3D</button>
+                <button type="button" data-prompt="Tengo un problema con mi impresión 3D. Pregúntame lo necesario para diagnosticarlo.">Ayuda técnica</button>
+            </div>
+            <form id="forja-chat-form" class="forja-chat__composer">
+                <label class="visually-hidden" for="forja-chat-input">Escribe tu mensaje para FORJA AI</label>
+                <textarea id="forja-chat-input" rows="1" maxlength="2000" placeholder="Escribe tu pregunta…" required></textarea>
+                <button id="forja-chat-send" type="submit" aria-label="Enviar mensaje"><i class="fa-solid fa-paper-plane"></i></button>
+            </form>
+            <p class="forja-chat__disclaimer">La IA puede equivocarse. Confirma precios, existencias y compatibilidades con FORJA.</p>
+        </section>
+        <button id="forja-chat-toggle" class="forja-chat__toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="forja-chat-panel">
+            <i class="fa-solid fa-robot" aria-hidden="true"></i><span>FORJA AI</span>
+        </button>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        /**
+         * 100% 3D PRINTING CATEGORIES
+         */
+        const categoriesData = [
+            { id: "all", name: "Todos", icon: "fa-layer-group" },
+            { id: "Impresoras 3D", name: "Impresoras 3D", icon: "fa-print" },
+            { id: "Filamentos", name: "Filamentos", icon: "fa-circle-notch" },
+            { id: "Resinas UV", name: "Resinas UV", icon: "fa-flask" },
+            { id: "Boquillas y Hotends", name: "Boquillas y Hotends", icon: "fa-fire-burner" },
+            { id: "Herramientas y Postprocesado", name: "Herramientas & Post", icon: "fa-screwdriver-wrench" }
+        ];
+
+        /**
+         * 100% 3D PRINTING PRODUCT DATASET
+         */
+        const productsData = window.FORJA_PRODUCTS = [
+            // IMPRESORAS 3D
+            {
+                id: "3d-bambu-p1s",
+                sku: "3D-BAMBU-P1S",
+                name: "Impresora 3D Bambu Lab P1S High-Speed Enclosed",
+                category: "Impresoras 3D",
+                price: 785.00,
+                rating: 5.0,
+                image: "images/bambu_lab.jpg",
+                description: "Impresora 3D CoreXY cerrada de velocidad hasta 500 mm/s. Aceleración de 20,000 mm/s², compatibilidad con AMS multicolor y cámara HD.",
+                tags: ["CoreXY 500mm/s", "Cámara Cerrada", "Multicolor Ready"],
+                specs: ["Volumen de Impresión: 256 x 256 x 256 mm", "Hotend: All-metal 300°C", "Base Caliente: Hasta 100°C"]
+            },
+            {
+                id: "3d-ender3-v3",
+                sku: "3D-E3-V3SE",
+                name: "Impresora 3D Creality Ender 3 V3 SE",
+                category: "Impresoras 3D",
+                price: 225.00,
+                rating: 4.8,
+                image: "images/creality_ender.jpg",
+                description: "Equipada con extrusor directo Sprite, autonivelación CR-Touch por sensor de deformación y velocidad de 250mm/s.",
+                tags: ["250 mm/s", "Auto-Nivelado", "Direct Drive Sprite"],
+                specs: ["Volumen: 220 x 220 x 250 mm", "Eje Z doble sincronizado", "Cama de acero muelle PEI"]
+            },
+            {
+                id: "3d-elegoo-saturn4",
+                sku: "3D-ELG-SAT4P",
+                name: "Impresora 3D Resina Elegoo Saturn 4 Pro 12K",
+                category: "Impresoras 3D",
+                price: 495.00,
+                rating: 4.9,
+                image: "images/resina_elegoo.jpg",
+                description: "Impresora MSLA de resina UV con pantalla Mono LCD 12K de 10 pulgadas. Tecnología de tanque basculante (Tilt Release).",
+                tags: ["Resolución 12K", "Tilt Release", "Sensor de Resina"],
+                specs: ["Volumen: 218.88 x 122.88 x 220 mm", "Resolución XY: 19x24 micras", "Sistemas de auto-nivelado físico"]
+            },
+
+            // FILAMENTOS
+            {
+                id: "fil-pla-orange",
+                sku: "FIL-PLA-FORJA",
+                name: "Filamento PLA+ High Speed 1.75mm Naranja Forja (1kg)",
+                category: "Filamentos",
+                price: 24.00,
+                rating: 5.0,
+                image: "images/filamento_pla.jpg",
+                description: "Formula de fluido rápido sin atascamiento, tolerancia dieléctrica estricta de ±0.02mm. Carrete de plástico reciclado.",
+                tags: ["1.75mm ±0.02", "PLA+", "Fluidez 600mm/s"],
+                specs: ["Temp Nozzle: 190°C - 230°C", "Temp Cama: 45°C - 60°C", "Resistencia al impacto 2x PLA estándar"]
+            },
+            {
+                id: "fil-petg-black",
+                sku: "FIL-PETG-BLK",
+                name: "Filamento PETG Tough Industrial 1.75mm Negro (1kg)",
+                category: "Filamentos",
+                price: 26.00,
+                rating: 4.9,
+                image: "images/filamento_petg.jpg",
+                description: "Combina la facilidad de impresión del PLA con la resistencia mecánica y química del ABS. Cero warping.",
+                tags: ["PETG", "Resistencia Química", "Hidrofóbico"],
+                specs: ["Temp Nozzle: 230°C - 250°C", "Temp Cama: 70°C - 80°C", "Excelente adherencia entre capas"]
+            },
+            {
+                id: "fil-tpu-flex",
+                sku: "FIL-TPU-95A",
+                name: "Filamento TPU Flexible 95A 1.75mm Rojo Translucido (0.5kg)",
+                category: "Filamentos",
+                price: 22.00,
+                rating: 4.8,
+                image: "images/filamento_printer.jpg",
+                description: "Elastómero termoplástico de alta elongación. Ideal para empaques, amortiguadores y llantas de prototipos.",
+                tags: ["TPU 95A", "Alta Elongación", "Flexible"],
+                specs: ["Temp Nozzle: 210°C - 230°C", "Temp Cama: 30°C - 50°C", "Impresión a baja velocidad (20-40mm/s)"]
+            },
+            {
+                id: "fil-cf-pla",
+                sku: "FIL-CF-PLA1",
+                name: "Filamento PLA-CF Fibra de Carbono 1.75mm (1kg)",
+                category: "Filamentos",
+                price: 38.00,
+                rating: 5.0,
+                image: "images/filamento_pla_cf.jpg",
+                description: "Reforzado con un 15% de fibras cortas de carbono. Acabado mate estructural rígido que disimula las líneas de capa.",
+                tags: ["15% Fibra Carbono", "Acabado Mate", "Alta Rigidez"],
+                specs: ["Requiere boquilla de Acero Endurecido", "Temp Nozzle: 215°C - 240°C"]
+            },
+
+            // RESINAS UV
+            {
+                id: "res-uv-std",
+                sku: "RES-UV-STD1K",
+                name: "Resina UV 405nm Standard Rigid Gris (1 Litro)",
+                category: "Resinas UV",
+                price: 32.00,
+                rating: 4.8,
+                image: "images/resina_standar.jpg",
+                description: "Fotopolímero de curado rápido con mínima contracción dimensional. Especial para miniaturas y prototipos detallados.",
+                tags: ["405nm LCD/DLP", "Baja Contracción", "Gris Mate"],
+                specs: ["Exposición capa normal: 2.0 - 3.0s", "Viscosidad baja", "Fácil de limpiar con Alcohol Isopropílico"]
+            },
+            {
+                id: "res-uv-water",
+                sku: "RES-UV-WW1K",
+                name: "Resina UV Water-Washable Lavable en Agua (1 Litro)",
+                category: "Resinas UV",
+                price: 36.00,
+                rating: 4.9,
+                image: "images/resina_fast_curing.jpg",
+                description: "No requiere Alcohol Isopropílico. Se limpia directamente con agua común bajo el grifo, reduciendo olores y costos.",
+                tags: ["Water Washable", "Cero IPA", "Bajo Olor"],
+                specs: ["Lavable en agua", "Longitud de onda: 385-410nm"]
+            },
+
+            // BOQUILLAS Y HOTENDS
+            {
+                id: "noz-ruby-04",
+                sku: "NOZ-RUBY-V6",
+                name: "Boquilla con Punta de Rubí Sintético 0.4mm M6",
+                category: "Boquillas y Hotends",
+                price: 45.00,
+                rating: 5.0,
+                image: "images/Boquilla con Punta de Rubí Sintético.jpg",
+                description: "Cuerpo de latón de alta conductividad con gema de rubí indestructible. Imprime filamentos abrasivos con fibra de carbono sin desgaste.",
+                tags: ["Punta Rubí", "Abrasivos Infinitos", "Rosca M6"],
+                specs: ["Punta Rubí clase moissanite", "Conductividad térmica del latón base", "Compatible V6 / Creality"]
+            },
+            {
+                id: "noz-hardened-steel",
+                sku: "NOZ-HST-PACK",
+                name: "Pack 2x Boquillas Acero Endurecido 0.4mm / 0.6mm",
+                category: "Boquillas y Hotends",
+                price: 14.50,
+                rating: 4.8,
+                image: "images/Pack de 2 Boquillas de Acero Endurecido.jpg",
+                description: "Tratamiento térmico de dureza Rockwell C60. Indispensable para filamentos brillantes de brillo en la oscuridad o madera.",
+                tags: ["Dureza 60 HRC", "0.4mm & 0.6mm", "Resistente a Abrasión"],
+                specs: ["Tratamiento electrolítico niquelado antiadherente"]
+            },
+            {
+                id: "hotend-tz3-bambu",
+                sku: "HOT-TZ3-BAMBU",
+                name: "Hotend Cerámico TZ3 High-Flow para Bambu Lab P1P/P1S",
+                category: "Boquillas y Hotends",
+                price: 28.00,
+                rating: 4.9,
+                image: "images/Hotend Cerámico TZ3 High-Flow para Bambu Lab P1P_P1S.jpg",
+                description: "Anillo calefactor cerámico de 360° con potencia de 60W. Boquilla intercambiable rápida de acero endurecido.",
+                tags: ["High-Flow 35mm³/s", "Cerámico 60W", "Bambu Lab"],
+                specs: ["Flujo volumétrico: 35 mm³/s", "Temperatura máxima: 320°C"]
+            },
+
+            // HERRAMIENTAS Y POSTPROCESADO
+            {
+                id: "tool-drybox",
+                sku: "TOOL-DRYBOX2",
+                name: "Caja Secadora de Filamento Sunlu S2 con Calefacción 360°",
+                category: "Herramientas y Postprocesado",
+                price: 58.00,
+                rating: 5.0,
+                image: "images/Caja Secadora de Filamento SUNLU S2.jpg",
+                description: "Deshidratador activo para remover la humedad del PLA, PETG, Nylon y TPU mientras la impresora está trabajando.",
+                tags: ["Secador 70°C", "Pantalla Táctil", "Deshumidificador"],
+                specs: ["Temperatura regulable: 35°C a 70°C", "Temporizador de 1 a 99 horas"]
+            },
+            {
+                id: "tool-cure-station",
+                sku: "TOOL-CURE-UW2",
+                name: "Estación de Lavado y Curado UV Elegoo Mercury Plus 2.0",
+                category: "Herramientas y Postprocesado",
+                price: 135.00,
+                rating: 4.9,
+                image: "images/Estación de Lavado y Curado UV Elegoo Mercury Plus 2.0.jpg",
+                description: "Sistema dual con contenedor de turbina de lavado de 3.5L y plato giratorio 360° con luces LED UV de 405nm.",
+                tags: ["Lavado & Curado", "Luz UV 405nm", "Plato 360°"],
+                specs: ["Capacidad de lavado: 160 x 100 x 200 mm", "Temporizador integrado"]
+            },
+            {
+                id: "tool-deburr-kit",
+                sku: "TOOL-FINISH-KIT",
+                name: "Kit Profesional de Acabado 3D (Bisturí, Desbarbador, Espátula y Limas)",
+                category: "Herramientas y Postprocesado",
+                price: 18.00,
+                rating: 4.8,
+                image: "images/Kit Profesional de Acabado 3D.jpg",
+                description: "Set completo para retirar soportes, eliminar bordes filosos en piezas de plástico y pulido superficial.",
+                tags: ["Desbarbador", "Retiro de Soportes", "Espátula PEI"],
+                specs: ["Incluye 10 cuchillas de repuesto para desbarbador de bordes"]
+            }
+        ];
+
+        // Global State
+        let currentCategory = "all";
+        let currentSearchQuery = "";
+        let currentSort = "featured";
+        let cart = [];
+        let activeProduct = null;
+        let catalogDrawerReturnFocus = null;
+        let productModalReturnFocus = null;
+
+        // Three.js 3D Viewport Variables
+        let threeScene, threeCamera, threeRenderer, threeMesh, animationFrameId;
+
+        // Initialize App
+        document.addEventListener("DOMContentLoaded", () => {
+            loadCartFromLocalStorage();
+            renderCategoryPills();
+            renderProducts();
+            updateCartUI();
+            calculate3DPrint();
+            init3DScene();
+            document.addEventListener("keydown", event => {
+                if (!document.body.classList.contains("catalog-drawer-open")) return;
+
+                const productModal = document.getElementById("productModal");
+                if (!productModal.classList.contains("pointer-events-none")) {
+                    if (event.key === "Escape") closeModal();
+                    return;
+                }
+
+                if (event.key === "Escape") {
+                    closeCatalogDrawer();
+                    return;
+                }
+
+                if (event.key === "Tab") {
+                    const panel = document.getElementById("catalogPanel");
+                    const focusable = Array.from(panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+                        .filter(element => element.getClientRects().length > 0);
+                    if (!focusable.length) return;
+
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+                        event.preventDefault();
+                        last.focus();
+                    } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+                        event.preventDefault();
+                        first.focus();
+                    }
+                }
+            });
+        });
+
+        function saveCartToLocalStorage() {
+            localStorage.setItem("forja_3d_cart", JSON.stringify(cart));
+        }
+
+        function loadCartFromLocalStorage() {
+            const saved = localStorage.getItem("forja_3d_cart");
+            if (saved) {
+                try {
+                    const savedCart = JSON.parse(saved);
+                    cart = Array.isArray(savedCart)
+                        ? savedCart.flatMap(item => {
+                            const product = productsData.find(entry => entry.id === item.id);
+                            const quantity = Number.parseInt(item.quantity, 10);
+                            return product && Number.isInteger(quantity) && quantity > 0
+                                ? [{ ...product, quantity }]
+                                : [];
+                        })
+                        : [];
+                    saveCartToLocalStorage();
+                } catch (error) {
+                    cart = [];
+                    localStorage.removeItem("forja_3d_cart");
+                }
+            }
+        }
+
+        function renderCategoryPills() {
+            const container = document.getElementById("categoryPillContainer");
+            container.innerHTML = categoriesData.map(cat => {
+                const isActive = cat.id === currentCategory;
+                const activeClasses = isActive 
+                    ? "bg-brand-orange text-white font-bold shadow-glow-orange border-brand-orange" 
+                    : "bg-brand-card hover:bg-brand-cardHover text-brand-muted hover:text-white border-brand-border";
+
+                return `
+                    <button type="button" onclick="filterByCategory('${cat.id}')" aria-pressed="${isActive}" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-mono whitespace-nowrap transition-all border flex items-center space-x-2 ${activeClasses}">
+                        <i class="fa-solid ${cat.icon} text-xs"></i>
+                        <span>${cat.name}</span>
+                    </button>
+                `;
+            }).join("");
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById("productGrid");
+            const emptyState = document.getElementById("emptyState");
+            const counter = document.getElementById("productCounter");
+
+            let filtered = productsData.filter(product => {
+                const matchesCategory = (currentCategory === "all") || (product.category === currentCategory);
+                const query = currentSearchQuery.toLowerCase().trim();
+                const matchesQuery = !query || 
+                    product.name.toLowerCase().includes(query) ||
+                    product.category.toLowerCase().includes(query) ||
+                    product.description.toLowerCase().includes(query) ||
+                    product.tags.some(tag => tag.toLowerCase().includes(query));
+
+                return matchesCategory && matchesQuery;
+            });
+
+            if (currentSort === "price-asc") {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (currentSort === "price-desc") {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (currentSort === "name-asc") {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            counter.innerText = `${filtered.length} productos`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card bg-brand-card border border-brand-border/90 rounded-2xl overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <button type="button" class="relative block h-48 w-full cursor-pointer overflow-hidden bg-brand-darker text-left" onclick="openModal('${product.id}')" aria-label="Ver detalles de ${product.name}">
+                            <img src="${product.image}" alt="" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='images/printer.svg';" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            
+                            <span class="absolute top-3 left-3 rounded-md border border-white/10 bg-black/75 px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-brand-orange backdrop-blur-md">
+                                ${product.category}
+                            </span>
+
+                            <span class="absolute top-3 right-3 flex items-center space-x-1 rounded-md border border-brand-border bg-brand-card/90 px-2 py-0.5 font-mono text-[11px] text-amber-400 backdrop-blur-md">
+                                <i class="fa-solid fa-star text-[9px]"></i>
+                                <span>${product.rating}</span>
+                            </span>
+                        </button>
+
+                        <div class="p-5 space-y-2.5">
+                            <div class="text-[10px] font-mono text-brand-muted">${product.sku}</div>
+                            <button type="button" onclick="openModal('${product.id}')" class="line-clamp-2 text-left text-base font-bold leading-snug text-white transition-colors hover:text-brand-orange">
+                                ${product.name}
+                            </button>
+
+                            <div class="flex flex-wrap gap-1 pt-1">
+                                ${product.tags.slice(0, 3).map(tag => `
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-brand-darker border border-brand-border text-brand-muted font-mono">${tag}</span>
+                                `).join("")}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5 pt-0 flex items-center justify-between border-t border-brand-border/40 mt-3">
+                        <div>
+                            <div class="text-[10px] uppercase font-mono text-brand-muted">Precio</div>
+                            <div class="text-xl font-black text-brand-orange font-mono">$${product.price.toFixed(2)}</div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openModal('${product.id}')" class="p-2.5 rounded-xl bg-brand-darker hover:bg-brand-border text-brand-muted hover:text-white border border-brand-border transition-all" title="Ver 3D & Ficha" aria-label="Ver modelo y ficha de ${product.name}">
+                                <i class="fa-solid fa-cube text-xs"></i>
+                            </button>
+                            <button onclick="addToCart('${product.id}')" class="px-3.5 py-2.5 rounded-xl bg-brand-orange hover:bg-brand-orangeHover text-white text-xs font-bold font-mono shadow-glow-orange transition-all flex items-center space-x-1.5 active:scale-95">
+                                <i class="fa-solid fa-plus"></i>
+                                <span class="hidden sm:inline">BOM</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function handleSearch(val) {
+            currentSearchQuery = val;
+            document.getElementById("headerSearchInput").value = val;
+            document.getElementById("catalogSearchInput").value = val;
+
+            const clearHeader = document.getElementById("clearHeaderSearch");
+            const clearCatalog = document.getElementById("clearCatalogSearch");
+
+            if (val.trim()) {
+                clearHeader.classList.remove("hidden");
+                clearCatalog.classList.remove("hidden");
+            } else {
+                clearHeader.classList.add("hidden");
+                clearCatalog.classList.add("hidden");
+            }
+
+            updateFilterBadge();
+            renderProducts();
+        }
+
+        function clearSearch() {
+            handleSearch("");
+        }
+
+        function filterByCategory(catId) {
+            currentCategory = catId;
+            renderCategoryPills();
+            updateFilterBadge();
+            renderProducts();
+        }
+
+        function openCatalogCategory(catId) {
+            filterByCategory(catId);
+            openCatalogDrawer();
+        }
+
+        function applySort(val) {
+            currentSort = val;
+            renderProducts();
+        }
+
+        function resetFilters() {
+            currentCategory = "all";
+            currentSearchQuery = "";
+            document.getElementById("headerSearchInput").value = "";
+            document.getElementById("catalogSearchInput").value = "";
+            document.getElementById("clearHeaderSearch").classList.add("hidden");
+            document.getElementById("clearCatalogSearch").classList.add("hidden");
+            renderCategoryPills();
+            updateFilterBadge();
+            renderProducts();
+        }
+
+        function updateFilterBadge() {
+            const badge = document.getElementById("activeFilterBadge");
+            const badgeText = document.getElementById("activeFilterText");
+
+            let parts = [];
+            if (currentCategory !== "all") parts.push(`Categoría: ${currentCategory}`);
+            if (currentSearchQuery.trim()) parts.push(`Búsqueda: "${currentSearchQuery}"`);
+
+            if (parts.length > 0) {
+                badgeText.innerText = parts.join(" | ");
+                badge.classList.remove("hidden");
+            } else {
+                badge.classList.add("hidden");
+            }
+        }
+
+        function openCatalogDrawer() {
+            const drawer = document.getElementById("catalogDrawer");
+            if (document.body.classList.contains("catalog-drawer-open")) return;
+
+            catalogDrawerReturnFocus = document.activeElement;
+            drawer.inert = false;
+            drawer.setAttribute("aria-hidden", "false");
+            document.body.classList.add("catalog-drawer-open");
+            document.getElementById("catalogMenuButton").setAttribute("aria-expanded", "true");
+            drawer.classList.remove("pointer-events-none");
+            document.getElementById("catalogBackdrop").classList.remove("opacity-0");
+            document.getElementById("catalogPanel").classList.remove("translate-x-full");
+            document.querySelector("#catalogPanel button[aria-label='Cerrar catálogo']").focus();
+        }
+
+        function closeCatalogDrawer() {
+            const drawer = document.getElementById("catalogDrawer");
+            if (!document.body.classList.contains("catalog-drawer-open")) return;
+
+            document.body.classList.remove("catalog-drawer-open");
+            document.getElementById("catalogMenuButton").setAttribute("aria-expanded", "false");
+            document.getElementById("catalogBackdrop").classList.add("opacity-0");
+            document.getElementById("catalogPanel").classList.add("translate-x-full");
+            drawer.classList.add("pointer-events-none");
+            drawer.setAttribute("aria-hidden", "true");
+            drawer.inert = true;
+
+            if (catalogDrawerReturnFocus instanceof HTMLElement && catalogDrawerReturnFocus.isConnected) {
+                catalogDrawerReturnFocus.focus();
+            }
+            catalogDrawerReturnFocus = null;
+        }
+
+        /**
+         * THREE.JS 3D VIEWPORT ENGINE
+         */
+        function init3DScene() {
+            const canvas = document.getElementById("threeCanvas");
+            if (!canvas) return;
+
+            threeScene = new THREE.Scene();
+            threeScene.background = new THREE.Color(0x0a0d14);
+
+            threeCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+            threeCamera.position.set(0, 0, 5);
+
+            threeRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            threeRenderer.setSize(350, 350);
+            threeRenderer.setPixelRatio(window.devicePixelRatio);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            threeScene.add(ambientLight);
+
+            const orangeLight = new THREE.PointLight(0xff5500, 2.5, 10);
+            orangeLight.position.set(2, 3, 4);
+            threeScene.add(orangeLight);
+
+            const cyanLight = new THREE.PointLight(0x00e5ff, 2.5, 10);
+            cyanLight.position.set(-2, -2, 3);
+            threeScene.add(cyanLight);
+
+            create3DMeshForCategory("all");
+
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging || !threeMesh) return;
+
+                const deltaMove = {
+                    x: e.clientX - previousMousePosition.x,
+                    y: e.clientY - previousMousePosition.y
+                };
+
+                threeMesh.rotation.y += deltaMove.x * 0.01;
+                threeMesh.rotation.x += deltaMove.y * 0.01;
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => { isDragging = false; });
+
+            function animate() {
+                animationFrameId = requestAnimationFrame(animate);
+                if (threeMesh && !isDragging) {
+                    threeMesh.rotation.y += 0.008;
+                    threeMesh.rotation.x += 0.004;
+                }
+                threeRenderer.render(threeScene, threeCamera);
+            }
+            animate();
+        }
+
+        function create3DMeshForCategory(category) {
+            if (threeMesh) threeScene.remove(threeMesh);
+
+            let geometry;
+            let material = new THREE.MeshStandardMaterial({
+                color: 0x141923,
+                roughness: 0.25,
+                metalness: 0.85
+            });
+
+            if (category === "Filamentos" || category === "Resinas UV") {
+                // Torus / Spool Geometry
+                geometry = new THREE.TorusGeometry(1.1, 0.4, 16, 32);
+            } else if (category === "Boquillas y Hotends") {
+                // Cone Nozzle Geometry
+                geometry = new THREE.ConeGeometry(1.2, 2, 6);
+            } else if (category === "Impresoras 3D") {
+                // Cube Frame
+                geometry = new THREE.BoxGeometry(1.8, 1.8, 1.8);
+            } else {
+                // Polyhedron
+                geometry = new THREE.IcosahedronGeometry(1.3, 1);
+            }
+
+            threeMesh = new THREE.Mesh(geometry, material);
+
+            const wireframeGeo = new THREE.WireframeGeometry(geometry);
+            const wireframeMat = new THREE.LineBasicMaterial({ color: 0xff5500, linewidth: 1.5 });
+            const wireframe = new THREE.LineSegments(wireframeGeo, wireframeMat);
+            threeMesh.add(wireframe);
+
+            threeScene.add(threeMesh);
+        }
+
+        /**
+         * PRODUCT MODAL LOGIC
+         */
+        function openModal(productId) {
+            const product = productsData.find(p => p.id === productId);
+            if (!product) return;
+
+            productModalReturnFocus = document.activeElement;
+            activeProduct = product;
+
+            document.getElementById("modalCategoryBadge").innerText = product.category;
+            document.getElementById("modalSku").innerText = `SKU: ${product.sku}`;
+            
+            const imgEl = document.getElementById("modalImage");
+            imgEl.src = product.image;
+            imgEl.onerror = function() {
+                this.onerror = null;
+                this.src = "images/printer.svg";
+            };
+
+            document.getElementById("modalTitle").innerText = product.name;
+            document.getElementById("modalPrice").innerText = `$${product.price.toFixed(2)}`;
+            document.getElementById("modalDescription").innerText = product.description;
+
+            document.getElementById("modalTags").innerHTML = product.tags.map(t => `
+                <span class="px-2.5 py-1 rounded-md bg-brand-darker border border-brand-border text-xs text-brand-cyan font-mono">${t}</span>
+            `).join("");
+
+            document.getElementById("modalSpecsList").innerHTML = product.specs.map(s => `
+                <li>${s}</li>
+            `).join("");
+
+            const addBtn = document.getElementById("modalAddToCartBtn");
+            addBtn.onclick = () => {
+                addToCart(product.id);
+                closeModal();
+            };
+
+            switchModalView('image');
+            create3DMeshForCategory(product.category);
+
+            const backdrop = document.getElementById("productModal");
+            const modalContainer = document.getElementById("modalContainer");
+            backdrop.classList.remove("pointer-events-none", "opacity-0");
+            modalContainer.classList.remove("scale-95");
+            backdrop.querySelector("button[aria-label='Cerrar detalles del producto']").focus();
+        }
+
+        function closeModal() {
+            const backdrop = document.getElementById("productModal");
+            const modalContainer = document.getElementById("modalContainer");
+            backdrop.classList.add("pointer-events-none", "opacity-0");
+            modalContainer.classList.add("scale-95");
+            activeProduct = null;
+            if (productModalReturnFocus instanceof HTMLElement && productModalReturnFocus.isConnected) {
+                productModalReturnFocus.focus();
+            }
+            productModalReturnFocus = null;
+        }
+
+        function switchModalView(type) {
+            const imgContainer = document.getElementById("modalImage");
+            const canvasContainer = document.getElementById("modal3DCanvasContainer");
+            const btnImg = document.getElementById("btnViewImg");
+            const btn3D = document.getElementById("btnView3D");
+
+            if (type === '3d') {
+                imgContainer.classList.add("hidden");
+                canvasContainer.classList.remove("hidden");
+                btn3D.className = "flex-1 py-2 rounded-xl bg-brand-orange text-white text-xs font-mono font-bold transition-all border border-brand-orange";
+                btnImg.className = "flex-1 py-2 rounded-xl bg-brand-dark hover:bg-brand-border text-brand-muted hover:text-white text-xs font-mono font-bold transition-all border border-brand-border";
+            } else {
+                imgContainer.classList.remove("hidden");
+                canvasContainer.classList.add("hidden");
+                btnImg.className = "flex-1 py-2 rounded-xl bg-brand-orange text-white text-xs font-mono font-bold transition-all border border-brand-orange";
+                btn3D.className = "flex-1 py-2 rounded-xl bg-brand-dark hover:bg-brand-border text-brand-muted hover:text-white text-xs font-mono font-bold transition-all border border-brand-border";
+            }
+        }
+
+        /**
+         * CART & BOM DRAWER
+         */
+        function openCartDrawer() {
+            const backdrop = document.getElementById("cartBackdrop");
+            const panel = document.getElementById("cartPanel");
+            document.body.classList.add("cart-drawer-open");
+            backdrop.classList.remove("opacity-0");
+            panel.classList.remove("translate-x-full");
+            document.getElementById("cartDrawer").classList.remove("pointer-events-none");
+        }
+
+        function closeCartDrawer() {
+            const backdrop = document.getElementById("cartBackdrop");
+            const panel = document.getElementById("cartPanel");
+            document.body.classList.remove("cart-drawer-open");
+            backdrop.classList.add("opacity-0");
+            panel.classList.add("translate-x-full");
+            document.getElementById("cartDrawer").classList.add("pointer-events-none");
+        }
+
+        function addToCart(productId) {
+            const product = productsData.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            saveCartToLocalStorage();
+            updateCartUI();
+            showToast(`Añadido a BOM: ${product.name}`, "info");
+        }
+
+        function updateQuantity(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+
+            saveCartToLocalStorage();
+            updateCartUI();
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(i => i.id !== productId);
+            saveCartToLocalStorage();
+            updateCartUI();
+            showToast("Componente removido", "warning");
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById("cartCountBadge").innerText = totalCount;
+
+            const container = document.getElementById("cartItemsContainer");
+            const emptyState = document.getElementById("cartEmptyState");
+
+            if (cart.length === 0) {
+                container.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                document.getElementById("cartSubtotal").innerText = "$0.00";
+                document.getElementById("cartShippingCost").innerText = "$0.00";
+                document.getElementById("cartTotal").innerText = "$0.00";
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+
+            let subtotal = 0;
+
+            container.innerHTML = cart.map(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                return `
+                    <div class="p-3 bg-brand-darker rounded-2xl border border-brand-border flex items-center justify-between space-x-3">
+                        <img src="${item.image}" alt="" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='images/printer.svg';" class="w-12 h-12 rounded-xl object-cover border border-brand-border">
+                        
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
+                            <div class="text-[11px] font-mono text-brand-orange">$${item.price.toFixed(2)} c/u</div>
+                            
+                            <div class="flex items-center space-x-2 mt-1">
+                                <button onclick="updateQuantity('${item.id}', -1)" class="w-5 h-5 rounded bg-brand-border/60 hover:bg-brand-border text-xs text-white font-bold flex items-center justify-center">-</button>
+                                <span class="text-xs font-mono font-bold text-white">${item.quantity}</span>
+                                <button onclick="updateQuantity('${item.id}', 1)" class="w-5 h-5 rounded bg-brand-border/60 hover:bg-brand-border text-xs text-white font-bold flex items-center justify-center">+</button>
+                            </div>
+                        </div>
+
+                        <div class="text-right">
+                            <div class="text-xs font-bold font-mono text-white">$${itemTotal.toFixed(2)}</div>
+                            <button onclick="removeFromCart('${item.id}')" class="text-brand-muted hover:text-red-400 text-xs mt-2">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+
+            const shippingSelect = document.getElementById("cartShippingSelect");
+            const shippingCost = parseFloat(shippingSelect ? shippingSelect.value : 0);
+            const grandTotal = subtotal + shippingCost;
+
+            document.getElementById("cartSubtotal").innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById("cartShippingCost").innerText = `$${shippingCost.toFixed(2)}`;
+            document.getElementById("cartTotal").innerText = `$${grandTotal.toFixed(2)}`;
+        }
+
+        function handleShippingMethodChange() {
+            const shippingSelect = document.getElementById("cartShippingSelect");
+            const isStorePickup = shippingSelect.selectedOptions[0].dataset.storePickup === "true";
+            const addressSection = document.getElementById("shippingAddressSection");
+            const addressInput = document.getElementById("shippingAddress");
+
+            addressSection.classList.toggle("hidden", isStorePickup);
+            addressInput.required = !isStorePickup;
+            updateCartUI();
+        }
+
+        function handlePaymentMethodChange() {
+            const paymentSelect = document.getElementById("cartPaymentSelect");
+            const notice = document.getElementById("cashPaymentNotice");
+            if (paymentSelect && paymentSelect.value === "cash") {
+                notice.classList.remove("hidden");
+            } else if (notice) {
+                notice.classList.add("hidden");
+            }
+        }
+
+        function openPoliciesModal(sectionId = 'sec-1') {
+            const backdrop = document.getElementById("policiesModal");
+            const container = document.getElementById("policiesModalContainer");
+            backdrop.classList.remove("pointer-events-none", "opacity-0");
+            container.classList.remove("scale-95");
+            switchPolicyTab(sectionId);
+        }
+
+        function closePoliciesModal() {
+            const backdrop = document.getElementById("policiesModal");
+            const container = document.getElementById("policiesModalContainer");
+            backdrop.classList.add("pointer-events-none", "opacity-0");
+            container.classList.add("scale-95");
+        }
+
+        function switchPolicyTab(sectionId) {
+            document.querySelectorAll(".policySectionBlock").forEach(sec => sec.classList.add("hidden"));
+            document.querySelectorAll(".policyTabBtn").forEach(btn => {
+                btn.className = "policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal text-brand-muted hover:text-white hover:bg-brand-border/40";
+            });
+
+            const activeSec = document.getElementById(`policySec-${sectionId}`);
+            if (activeSec) activeSec.classList.remove("hidden");
+
+            const activeBtn = document.getElementById(`tabBtn-${sectionId}`);
+            if (activeBtn) {
+                activeBtn.className = "policyTabBtn text-left px-3.5 py-2.5 rounded-xl text-xs font-mono font-semibold transition-all flex items-center space-x-2.5 whitespace-nowrap md:whitespace-normal bg-brand-orange text-white shadow-glow-orange";
+            }
+        }
+
+        function processCheckout() {
+            if (cart.length === 0) {
+                showToast("Tu proyecto no contiene insumos aún", "warning");
+                return;
+            }
+
+            const acceptCheckbox = document.getElementById("acceptTermsCheckbox");
+            if (!acceptCheckbox || !acceptCheckbox.checked) {
+                showToast("Debes aceptar las Políticas de la Tienda FORJA para continuar", "warning");
+                return;
+            }
+
+            const shippingSelect = document.getElementById("cartShippingSelect");
+            const paymentSelect = document.getElementById("cartPaymentSelect");
+            const isStorePickup = shippingSelect.selectedOptions[0].dataset.storePickup === "true";
+            const shippingAddress = document.getElementById("shippingAddress").value.trim();
+
+            if (!isStorePickup && !shippingAddress) {
+                document.getElementById("shippingAddress").focus();
+                showToast("Ingresa la dirección de envío para continuar", "warning");
+                return;
+            }
+
+            if (paymentSelect && paymentSelect.value === "cash" && shippingSelect && shippingSelect.value !== "0") {
+                showToast("El pago en efectivo sólo es válido para entregas en Sonsonate Centro", "warning");
+                return;
+            }
+
+            showToast("¡Pedido y orden 3D confirmados correctamente!", "success");
+            cart = [];
+            saveCartToLocalStorage();
+            updateCartUI();
+            closeCartDrawer();
+        }
+
+        function exportBOMCSV() {
+            if (cart.length === 0) {
+                showToast("Tu lista BOM está vacía", "warning");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,SKU,Nombre,Categoria,Cantidad,PrecioUnitario,Subtotal\n";
+            cart.forEach(item => {
+                const row = `"${item.sku}","${item.name.replace(/"/g, '""')}","${item.category}",${item.quantity},${item.price.toFixed(2)},${(item.price * item.quantity).toFixed(2)}`;
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `FORJA_3D_BOM_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Archivo BOM CSV exportado", "success");
+        }
+
+        /**
+         * 3D ESTIMATOR CALCULATOR LOGIC
+         */
+        function toggleFilamentCalc() {
+            const section = document.getElementById("calcSection");
+            section.classList.toggle("hidden");
+            if (!section.classList.contains("hidden")) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function openFilamentCalc() {
+            const section = document.getElementById("calcSection");
+            if (section.classList.contains("hidden")) {
+                toggleFilamentCalc();
+            } else {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function calculate3DPrint() {
+            const weightGrams = parseFloat(document.getElementById("calcWeight").value) || 0;
+            const hours = parseFloat(document.getElementById("calcHours").value) || 0;
+            const material = document.getElementById("calcMaterial").value;
+            const resolution = parseFloat(document.getElementById("calcResolution").value) || 0.20;
+
+            let pricePerGram = 0.024; // PLA+
+            if (material === "PETG") pricePerGram = 0.026;
+            if (material === "ABS") pricePerGram = 0.028;
+            if (material === "TPU") pricePerGram = 0.032;
+            if (material === "Resina") pricePerGram = 0.038;
+
+            let resMultiplier = 1.0;
+            if (resolution < 0.15) resMultiplier = 1.25;
+
+            const materialCost = weightGrams * pricePerGram;
+            const energyAndWearCost = (hours * 0.50) * resMultiplier;
+            const totalCost = materialCost + energyAndWearCost;
+
+            document.getElementById("resMaterialCost").innerText = `$${materialCost.toFixed(2)}`;
+            document.getElementById("resEnergyCost").innerText = `$${energyAndWearCost.toFixed(2)}`;
+            document.getElementById("resTotalCost").innerText = `$${totalCost.toFixed(2)}`;
+        }
+
+        function addFilamentServiceToCart() {
+            const weight = document.getElementById("calcWeight").value;
+            const mat = document.getElementById("calcMaterial").value;
+            const cost = parseFloat(document.getElementById("resTotalCost").innerText.replace("$", ""));
+
+            const customItem = {
+                id: `service-3d-${Date.now()}`,
+                sku: `3D-COTIZ-CUSTOM`,
+                name: `Servicio Impresión 3D STL (${weight}g - ${mat})`,
+                category: "Impresoras 3D",
+                price: cost,
+                rating: 5.0,
+                image: "images/filament.svg",
+                description: "Cotización personalizada calculada por masa e insumos con la Calculadora FORJA 3D.",
+                tags: [mat, `${weight}g`, "Cotización STL"],
+                specs: ["Material: " + mat, "Peso estimado: " + weight + "g"]
+            };
+
+            cart.push({ ...customItem, quantity: 1 });
+            saveCartToLocalStorage();
+            updateCartUI();
+            showToast("Cotización 3D agregada a la lista BOM", "success");
+            openCartDrawer();
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `pointer-events-auto px-4 py-3 rounded-2xl glass-panel shadow-2xl border text-xs font-mono font-bold flex items-center space-x-2 transition-all duration-300 transform translate-y-4 opacity-0`;
+            
+            if (type === "success") {
+                toast.classList.add("border-emerald-500/50", "text-emerald-400");
+                toast.innerHTML = `<i class="fa-solid fa-circle-check text-sm"></i> <span>${message}</span>`;
+            } else if (type === "warning") {
+                toast.classList.add("border-amber-500/50", "text-amber-400");
+                toast.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-sm"></i> <span>${message}</span>`;
+            } else {
+                toast.classList.add("border-brand-orange/50", "text-brand-orange");
+                toast.innerHTML = `<i class="fa-solid fa-bell text-sm"></i> <span>${message}</span>`;
+            }
+
+            container.appendChild(toast);
+
+            setTimeout(() => { toast.classList.remove("translate-y-4", "opacity-0"); }, 10);
+            setTimeout(() => {
+                toast.classList.add("translate-y-4", "opacity-0");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

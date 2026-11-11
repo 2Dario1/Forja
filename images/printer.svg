@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="0" x2="568" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#1A2230"/><stop offset="1" stop-color="#10151F"/></linearGradient>
+    <linearGradient id="frame" x1="195" y1="40" x2="407" y2="297" gradientUnits="userSpaceOnUse"><stop stop-color="#58677A"/><stop offset="1" stop-color="#303C4C"/></linearGradient>
+    <linearGradient id="glow" x1="241" y1="199" x2="354" y2="280" gradientUnits="userSpaceOnUse"><stop stop-color="#FF7A25"/><stop offset="1" stop-color="#FF4D17"/></linearGradient>
+    <filter id="blur" x="143" y="52" width="322" height="300" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="17"/></filter>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h600v360H0z"/>
+  <path d="M0 290h600M0 320h600M80 0v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360" stroke="#FF5A1F" stroke-opacity=".055"/>
+  <circle cx="302" cy="183" r="95" fill="#FF5A1F" opacity=".14" filter="url(#blur)"/>
+  <rect x="176" y="38" width="249" height="270" rx="18" fill="#0B1018" stroke="#637288" stroke-width="8"/>
+  <path d="M202 63h196v217H202z" fill="#141B26" stroke="#344153" stroke-width="4"/>
+  <path d="M219 76v167m162-167v167M219 84h162" stroke="url(#frame)" stroke-width="10" stroke-linecap="round"/>
+  <rect x="265" y="76" width="72" height="20" rx="8" fill="#536176" stroke="#8491A0" stroke-width="3"/>
+  <path d="M290 96v61" stroke="#A7B2BE" stroke-width="7"/>
+  <path d="m283 156 14 0-7 18-7-18Z" fill="#FF671D"/>
+  <path d="M226 247h148" stroke="#AAB5C0" stroke-width="10" stroke-linecap="round"/>
+  <path d="M275 244h54v-35h-54v35Z" fill="#FF5A1F" opacity=".95"/>
+  <path d="M282 235h40v-17h-40z" fill="#FF9B42"/><path d="M288 226h28v-8h-28z" fill="#FFD29A"/>
+  <path d="M258 263h86" stroke="#475568" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="209" cy="56" r="6" fill="#00E5FF"/><circle cx="392" cy="56" r="6" fill="#00E5FF"/>
+  <rect x="216" y="291" width="166" height="13" rx="6.5" fill="#526176"/>
+  <path d="m460 86 6 13 14 2-10 9 2 14-12-7-12 7 3-14-11-9 14-2 6-13Z" fill="#00DDF2"/>
+  <text x="54" y="319" fill="#8593A5" font-family="monospace" font-size="12" letter-spacing="3">FDM / COREXY</text>
+</svg>

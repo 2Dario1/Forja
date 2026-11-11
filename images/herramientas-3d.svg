@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="30" y1="0" x2="568" y2="360" gradientUnits="userSpaceOnUse"><stop stop-color="#1A2230"/><stop offset="1" stop-color="#10151F"/></linearGradient>
+    <linearGradient id="box" x1="187" y1="110" x2="358" y2="270" gradientUnits="userSpaceOnUse"><stop stop-color="#59697D"/><stop offset="1" stop-color="#2B394A"/></linearGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h600v360H0z"/>
+  <path d="M0 290h600M0 320h600M80 0v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360m60-360v360" stroke="#FF5A1F" stroke-opacity=".055"/>
+  <rect x="174" y="101" width="184" height="169" rx="20" fill="url(#box)" stroke="#8B9AAF" stroke-width="5"/>
+  <rect x="193" y="123" width="146" height="99" rx="12" fill="#121923" stroke="#48596E" stroke-width="4"/>
+  <path d="M207 177c15-15 30-15 45 0 15 15 30 15 45 0 15-15 28-15 38-4" stroke="#00DDF1" stroke-width="5" stroke-linecap="round"/>
+  <rect x="213" y="142" width="58" height="22" rx="5" fill="#FF5A1F"/>
+  <text x="223" y="157" fill="#FFF2E8" font-family="monospace" font-size="10" font-weight="700">DRY 45°</text>
+  <circle cx="311" cy="151" r="8" fill="#72D68A"/>
+  <path d="M195 237h142m-128 15h114" stroke="#8795A7" stroke-width="5" stroke-linecap="round"/>
+  <path d="M139 103 96 181l13 8 45-73" fill="#FF692A" stroke="#FFAA6C" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m94 182-13 30 28-23-15-7Z" fill="#AEB8C4"/>
+  <path d="m408 111 16-16 40 40-16 16-40-40Z" fill="#00C9DE" stroke="#8CF4FF" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m448 151 15-15 17 17-15 15-17-17Z" fill="#FF5A1F"/>
+  <path d="M401 104 385 88m28 6-7-22" stroke="#E1E6EB" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="423" cy="221" r="27" fill="#272F3C" stroke="#65758A" stroke-width="4"/>
+  <path d="M423 201v20l13 8" stroke="#00D5E8" stroke-width="4" stroke-linecap="round"/>
+  <text x="52" y="319" fill="#8593A5" font-family="monospace" font-size="12" letter-spacing="3">SECADO / ACABADO / CURADO</text>
+</svg>
